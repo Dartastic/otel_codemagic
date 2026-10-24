@@ -1,15 +1,16 @@
-// Licensed under the Dartastic Pro Software License Agreement.
+// Licensed under the Apache License, Version 2.0
 // Copyright 2025-2026 Mindful Software LLC d/b/a Dartastic.io, All rights reserved.
 
-import 'package:dartastic_opentelemetry/dartastic_opentelemetry.dart';
+import 'package:dartastic_opentelemetry_api/dartastic_opentelemetry_api.dart';
 
 import 'otel_codemagic_suppression.dart';
 
 const _tracerName = 'dartastic_otel_libs_codemagic';
 
-Tracer _tracer() => OTel.tracerProvider().getTracer(_tracerName);
+APITracer _tracer() => OTelAPI.tracerProvider().getTracer(_tracerName);
 
 class CodemagicResult {
+  /// Creates a result.
   const CodemagicResult({
     this.appId,
     this.workflowId,
@@ -80,8 +81,13 @@ class CodemagicResult {
   final int? statusCode;
 }
 
+/// What a traced call returned: the value for the caller plus fields
+/// recorded on the span.
 class CodemagicCallResult<T> {
+  /// Creates a call result.
   const CodemagicCallResult({required this.value, this.result});
+
+  /// The value returned to the caller.
   final T value;
   final CodemagicResult? result;
 }
@@ -109,7 +115,7 @@ Future<T> tracedCodemagic<T>({
   final span = _tracer().startSpan(
     'codemagic $operation',
     kind: SpanKind.client,
-    attributes: OTel.attributesFromMap(m),
+    attributes: OTelAPI.attributesFromMap(m),
   );
   try {
     final r = await invoke();
@@ -117,49 +123,50 @@ Future<T> tracedCodemagic<T>({
       final res = r.result!;
       final extras = <Attribute<Object>>[];
       if (res.appId != null) {
-        extras.add(OTel.attributeString('codemagic.app.id', res.appId!));
+        extras.add(OTelAPI.attributeString('codemagic.app.id', res.appId!));
       }
       if (res.workflowId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'codemagic.workflow.id',
           res.workflowId!,
         ));
       }
       if (res.workflowName != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'codemagic.workflow.name',
           res.workflowName!,
         ));
       }
       if (res.buildId != null) {
-        extras.add(OTel.attributeString('codemagic.build.id', res.buildId!));
+        extras.add(OTelAPI.attributeString('codemagic.build.id', res.buildId!));
       }
       if (res.buildNumber != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'codemagic.build.number',
           res.buildNumber!,
         ));
       }
       if (res.branch != null) {
-        extras.add(OTel.attributeString('codemagic.branch', res.branch!));
+        extras.add(OTelAPI.attributeString('codemagic.branch', res.branch!));
       }
       if (res.tag != null) {
-        extras.add(OTel.attributeString('codemagic.tag', res.tag!));
+        extras.add(OTelAPI.attributeString('codemagic.tag', res.tag!));
       }
       if (res.commit != null) {
-        extras.add(OTel.attributeString('codemagic.commit', res.commit!));
+        extras.add(OTelAPI.attributeString('codemagic.commit', res.commit!));
       }
       if (res.instanceType != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'codemagic.instance.type',
           res.instanceType!,
         ));
       }
       if (res.platform != null) {
-        extras.add(OTel.attributeString('codemagic.platform', res.platform!));
+        extras
+            .add(OTelAPI.attributeString('codemagic.platform', res.platform!));
       }
       if (res.status != null) {
-        extras.add(OTel.attributeString('codemagic.status', res.status!));
+        extras.add(OTelAPI.attributeString('codemagic.status', res.status!));
         if (res.status == 'failed' || res.status == 'timeout') {
           span.setStatus(
             SpanStatusCode.Error,
@@ -168,31 +175,31 @@ Future<T> tracedCodemagic<T>({
         }
       }
       if (res.durationSec != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'codemagic.duration_sec',
           res.durationSec!,
         ));
       }
       if (res.creditsUsed != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'codemagic.credits.used',
           res.creditsUsed!,
         ));
       }
       if (res.publishingTargets != null) {
-        extras.add(OTel.attributeStringList(
+        extras.add(OTelAPI.attributeStringList(
           'codemagic.publishing.targets',
           res.publishingTargets!,
         ));
       }
       if (res.testCount != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'codemagic.test.count',
           res.testCount!,
         ));
       }
       if (res.testFailedCount != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'codemagic.test.failed_count',
           res.testFailedCount!,
         ));
@@ -204,38 +211,38 @@ Future<T> tracedCodemagic<T>({
         }
       }
       if (res.codeSigningProvider != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'codemagic.code_signing.provider',
           res.codeSigningProvider!,
         ));
       }
       if (res.cachePullSec != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'codemagic.cache.pull_sec',
           res.cachePullSec!,
         ));
       }
       if (res.cachePushSec != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'codemagic.cache.push_sec',
           res.cachePushSec!,
         ));
       }
       if (res.rateLimitRemaining != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'codemagic.rate_limit.remaining',
           res.rateLimitRemaining!,
         ));
       }
       if (res.errorCode != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'codemagic.error.code',
           res.errorCode!,
         ));
         span.setStatus(SpanStatusCode.Error, 'Codemagic ${res.errorCode}');
       }
       if (res.statusCode != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'http.response.status_code',
           res.statusCode!,
         ));
@@ -246,13 +253,13 @@ Future<T> tracedCodemagic<T>({
           );
         }
       }
-      if (extras.isNotEmpty) span.addAttributes(OTel.attributes(extras));
+      if (extras.isNotEmpty) span.addAttributes(OTelAPI.attributes(extras));
     }
     return r.value;
   } catch (e, st) {
-    span.addAttributes(OTel.attributes([
-      OTel.attributeString(
-        ErrorResource.errorType.key,
+    span.addAttributes(OTelAPI.attributes([
+      OTelAPI.attributeString(
+        ErrorAttributes.errorType.key,
         e.runtimeType.toString(),
       ),
     ]));
